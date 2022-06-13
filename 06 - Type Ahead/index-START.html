@@ -1,22 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Type Ahead 👀</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <form class="search-form">
+      <input type="text" class="search" placeholder="City or State" />
+      <ul class="suggestions">
+        <li>Filter for a city</li>
+        <li>or a state</li>
+      </ul>
+    </form>
+    <script>
+      const endpoint =
+        'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json'
 
-  <form class="search-form">
-    <input type="text" class="search" placeholder="City or State">
-    <ul class="suggestions">
-      <li>Filter for a city</li>
-      <li>or a state</li>
-    </ul>
-  </form>
-<script>
-const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+      const cities = []
 
-</script>
-</body>
+      fetch(endpoint)
+        .then((blob) => blob.json())
+        .then((data) => cities.push(...data))
+
+      const findMatches = (wordToMatch, cities) =>
+        cities.filter(
+          (place) => (
+            (regex = new RegExp(wordToMatch, 'gi')),
+            place.city.match(regex) || place.state.match(regex)
+          )
+        )
+
+      const numberWithCommas = (x) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+      const displayMatches = (e) => {
+        const { value } = e.target
+        //   suggestions.innerHTML = findMatches(value, cities)
+        //     .map(
+        //       (place) => (
+        //         (regex = new RegExp(value, 'gi')),
+        //         (cityName = place.city.replace(regex, `<span class="hl">${value}</span>`)),
+        //         (stateName = place.state.replace(regex, `<span class="hl">${value}</span>`)),
+        //         `
+        //   <li>
+        //     <span class="name">${cityName}, ${stateName}</span>
+        //     <span class="population">${numberWithCommas(place.population)}</span>
+        //   </li>
+        // `
+        //       )
+        //     )
+        //     .join('')
+
+        suggestions.innerHTML = findAndMap(value, cities)
+      }
+
+      const findAndMap = (wordToMatch, cities) => (
+        (matchedHTML = []),
+        cities.forEach(
+          (place) => (
+            ({ city, state, population } = place),
+            (regex = new RegExp(wordToMatch, 'gi')),
+            city.match(regex) || state.match(regex)
+              ? ((cityName = city.replace(regex, `<span class="hl">${wordToMatch}</span>`)),
+                (stateName = state.replace(regex, `<span class="hl">${wordToMatch}</span>`)),
+                matchedHTML.push(`
+        <li>
+          <span class="name">${cityName}, ${stateName}</span>
+          <span class="population">${numberWithCommas(population)}</span>
+        </li>
+      `))
+              : null
+          )
+        ),
+        matchedHTML.join('')
+      )
+
+      const searchInput = document.querySelector('.search')
+      const suggestions = document.querySelector('.suggestions')
+
+      searchInput.addEventListener('change', displayMatches)
+      searchInput.addEventListener('keyup', displayMatches)
+    </script>
+  </body>
 </html>
