@@ -110,6 +110,12 @@
         flex: 5;
         font-size: 40px;
       }
+
+      @media only screen and (max-width: 600px) {
+        .panel p {
+          font-size: 1em;
+        }
+      }
     </style>
 
     <div class="panels">
@@ -144,10 +150,12 @@
       const panels = document.querySelectorAll('.panel')
 
       const toggleOpen = (e) => e.target.parentElement.classList.toggle('open')
-      const toggleActive = (e) =>
+      const toggleActive = (e) => {
+        console.log(e)
         e.propertyName.includes('flex')
           ? e.target.parentElement.classList.toggle('open-active')
           : null
+      }
 
       panels.forEach(
         (panel) => (
